@@ -53,3 +53,17 @@ WHERE Year > 2025;
 SELECT * FROM video_game_sales
 WHERE NA_Sales < 0 OR EU_Sales < 0 OR JP_Sales < 0 OR Other_Sales < 0 OR Global_Sales < 0;
 -- no rows returned
+
+
+
+-- Interesting Queries
+WITH genre_sales AS (
+SELECT year, genre, SUM(global_sales) AS total_sales
+FROM video_game_sales
+GROUP BY year, genre),
+ranked_genres AS (
+SELECT year, genre, total_sales, RANK() OVER (PARTITION BY year ORDER BY total_sales DESC) AS rank
+FROM genre_sales )
+SELECT year, genre, total_sales FROM ranked_genres
+WHERE rank = 1
+ORDER BY year;

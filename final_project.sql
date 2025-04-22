@@ -57,6 +57,7 @@ WHERE NA_Sales < 0 OR EU_Sales < 0 OR JP_Sales < 0 OR Other_Sales < 0 OR Global_
 
 
 -- Interesting Queries
+--Best genre per year and its total_sales based on the genre
 WITH genre_sales AS (
 SELECT year, genre, SUM(global_sales) AS total_sales
 FROM video_game_sales
@@ -67,3 +68,19 @@ FROM genre_sales )
 SELECT year, genre, total_sales FROM ranked_genres
 WHERE rank = 1
 ORDER BY year;
+
+--Best selling game per year along with its genre and its global sales
+SELECT  v.year, v.name AS top_game, v.genre, v.global_sales
+FROM video_game_sales v
+WHERE v.global_sales = ( SELECT MAX(v2.global_sales) FROM video_game_sales v2 WHERE v2.year = v.year)
+AND v.year IS NOT NULL
+ORDER BY v.year;
+
+--Top 5 publishes with the number of games they published and its averages sales per game
+SELECT publisher, COUNT(*) AS num_games, ROUND(AVG(global_sales), 2) AS avg_sales_per_game
+FROM video_game_sales
+WHERE global_sales IS NOT NULL
+GROUP BY publisher
+HAVING COUNT(*) >= 5
+ORDER BY avg_sales_per_game DESC
+LIMIT 5;
